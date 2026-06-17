@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --yes)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(npm install *)",
+      "Bash(git commit -m 'Build ScusaMaster Pro — generator, API routes, Redis, dashboard *)",
+      "Bash(git commit -m 'Add @upstash/redis dependency and update Claude Code permissions *)"
     ]
   }
 }
