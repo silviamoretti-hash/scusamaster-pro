@@ -3,19 +3,19 @@ import type { GenerationRecord } from "@/lib/redis";
 import Link from "next/link";
 
 const CATEGORIES: Record<string, string> = {
-  malattia: "🤒 Malattia",
-  famiglia: "👨‍👩‍👧 Famiglia",
-  tecnico: "💻 Tecnico",
-  traffico: "🚗 Traffico",
-  psicologico: "🧠 Stress",
+  malattia:      "🤒 Malattia",
+  famiglia:      "👨‍👩‍👧 Famiglia",
+  tecnico:       "💻 Tecnico",
+  traffico:      "🚗 Traffico",
+  psicologico:   "🧠 Stress",
   meteorologico: "⛈️ Meteo",
 };
 
 const TONES: Record<string, string> = {
-  drammatico: "🎭 Drammatico",
+  drammatico:    "🎭 Drammatico",
   professionale: "👔 Professionale",
-  creativo: "🌀 Creativo",
-  pietoso: "🥺 Pietoso",
+  creativo:      "🌀 Creativo",
+  pietoso:       "🥺 Pietoso",
 };
 
 async function getStats(): Promise<ReturnType<typeof buildEmpty> | Awaited<ReturnType<typeof fetchStats>>> {
@@ -31,15 +31,15 @@ function buildEmpty() {
   return {
     total: 0,
     categories: Object.fromEntries(Object.keys(CATEGORIES).map((k) => [k, 0])),
-    tones: Object.fromEntries(Object.keys(TONES).map((k) => [k, 0])),
-    history: [] as GenerationRecord[],
-    error: true,
+    tones:      Object.fromEntries(Object.keys(TONES).map((k) => [k, 0])),
+    history:    [] as GenerationRecord[],
+    error:      true,
   };
 }
 
 async function fetchStats() {
   const categoryKeys = Object.keys(CATEGORIES);
-  const toneKeys = Object.keys(TONES);
+  const toneKeys     = Object.keys(TONES);
 
   const [total, ...rest] = await Promise.all([
     redis.get<number>("scusamaster:total"),
@@ -49,27 +49,25 @@ async function fetchStats() {
   ]);
 
   const categoryValues = rest.slice(0, categoryKeys.length) as (number | null)[];
-  const toneValues = rest.slice(categoryKeys.length, categoryKeys.length + toneKeys.length) as (number | null)[];
-  const rawHistory = rest[categoryKeys.length + toneKeys.length] as (string | GenerationRecord)[];
+  const toneValues     = rest.slice(categoryKeys.length, categoryKeys.length + toneKeys.length) as (number | null)[];
+  const rawHistory     = rest[categoryKeys.length + toneKeys.length] as (string | GenerationRecord)[];
 
-  const categories = Object.fromEntries(
-    categoryKeys.map((c, i) => [c, categoryValues[i] ?? 0])
-  );
-  const tones = Object.fromEntries(
-    toneKeys.map((t, i) => [t, toneValues[i] ?? 0])
-  );
-  const history: GenerationRecord[] = rawHistory.map((item) =>
-    typeof item === "string" ? JSON.parse(item) : item
-  );
-
-  return { total: (total as number) ?? 0, categories, tones, history };
+  return {
+    total:      (total as number) ?? 0,
+    categories: Object.fromEntries(categoryKeys.map((c, i) => [c, categoryValues[i] ?? 0])),
+    tones:      Object.fromEntries(toneKeys.map((t, i) => [t, toneValues[i] ?? 0])),
+    history:    rawHistory.map((item) => (typeof item === "string" ? JSON.parse(item) : item)) as GenerationRecord[],
+  };
 }
 
 function Bar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
-    <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
-      <div className="h-full bg-amber-500 rounded-full" style={{ width: `${pct}%` }} />
+    <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-surface)" }}>
+      <div
+        className="h-full rounded-full transition-all"
+        style={{ width: `${pct}%`, backgroundColor: "var(--color-primary)" }}
+      />
     </div>
   );
 }
@@ -77,53 +75,86 @@ function Bar({ value, max }: { value: number; max: number }) {
 export default async function Dashboard() {
   const { total, categories, tones, history, ...rest } = await getStats();
   const hasError = "error" in rest && rest.error;
-  const maxCat = Math.max(...Object.values(categories));
-  const maxTone = Math.max(...Object.values(tones));
+  const maxCat  = Math.max(1, ...Object.values(categories) as number[]);
+  const maxTone = Math.max(1, ...Object.values(tones) as number[]);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-extrabold text-amber-800">📊 Dashboard</h1>
-        <Link href="/" className="text-sm text-amber-600 hover:text-amber-800 underline underline-offset-2">
-          ← Genera scuse
+    <div className="max-w-3xl mx-auto px-5 py-14 flex flex-col gap-10">
+
+      {/* Header */}
+      <div className="flex items-end justify-between gap-4">
+        <h1
+          className="font-display font-black leading-none tracking-[-0.02em]"
+          style={{ fontSize: "clamp(2.5rem,7vw,4.5rem)", color: "var(--color-primary)" }}
+        >
+          Statistiche.
+        </h1>
+        <Link
+          href="/"
+          className="text-sm font-semibold pb-1 transition-colors"
+          style={{ color: "var(--color-muted)" }}
+        >
+          ← Genera
         </Link>
       </div>
 
       {hasError && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm">
+        <div
+          className="rounded-2xl border-2 p-4 text-sm font-medium"
+          style={{ borderColor: "var(--color-accent)", color: "var(--color-accent-hover)", backgroundColor: "oklch(0.97 0.012 25)" }}
+        >
           ⚠️ Impossibile connettersi al database. Controlla le variabili d&apos;ambiente su Vercel.
         </div>
       )}
 
       {/* Totale */}
-      <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 text-center">
-        <p className="text-6xl font-black text-amber-600">{total}</p>
-        <p className="text-amber-700 font-medium mt-1">scuse generate finora</p>
+      <div
+        className="rounded-2xl p-8 flex flex-col gap-1"
+        style={{ backgroundColor: "var(--color-primary)" }}
+      >
+        <p
+          className="font-display font-black leading-none"
+          style={{ fontSize: "clamp(4rem,12vw,7rem)", color: "#fff" }}
+        >
+          {total}
+        </p>
+        <p className="text-base font-semibold" style={{ color: "oklch(0.90 0.06 110)" }}>
+          scuse generate finora
+        </p>
       </div>
 
+      {/* Categorie + Toni */}
       <div className="grid sm:grid-cols-2 gap-6">
-        {/* Categorie */}
-        <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 flex flex-col gap-4">
-          <h2 className="font-bold text-amber-700">Per categoria</h2>
+        <div
+          className="rounded-2xl p-6 flex flex-col gap-5"
+          style={{ backgroundColor: "var(--color-surface)" }}
+        >
+          <h2 className="font-display font-bold text-xl tracking-tight" style={{ color: "var(--color-ink)" }}>
+            Per categoria
+          </h2>
           {Object.entries(categories).map(([key, val]) => (
-            <div key={key} className="flex flex-col gap-1">
+            <div key={key} className="flex flex-col gap-1.5">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-700">{CATEGORIES[key]}</span>
-                <span className="font-semibold text-amber-600">{val as number}</span>
+                <span style={{ color: "var(--color-ink)" }}>{CATEGORIES[key]}</span>
+                <span className="font-bold tabular-nums" style={{ color: "var(--color-primary)" }}>{val as number}</span>
               </div>
               <Bar value={val as number} max={maxCat} />
             </div>
           ))}
         </div>
 
-        {/* Toni */}
-        <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 flex flex-col gap-4">
-          <h2 className="font-bold text-amber-700">Per tono</h2>
+        <div
+          className="rounded-2xl p-6 flex flex-col gap-5"
+          style={{ backgroundColor: "var(--color-surface)" }}
+        >
+          <h2 className="font-display font-bold text-xl tracking-tight" style={{ color: "var(--color-ink)" }}>
+            Per tono
+          </h2>
           {Object.entries(tones).map(([key, val]) => (
-            <div key={key} className="flex flex-col gap-1">
+            <div key={key} className="flex flex-col gap-1.5">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-700">{TONES[key]}</span>
-                <span className="font-semibold text-amber-600">{val as number}</span>
+                <span style={{ color: "var(--color-ink)" }}>{TONES[key]}</span>
+                <span className="font-bold tabular-nums" style={{ color: "var(--color-primary)" }}>{val as number}</span>
               </div>
               <Bar value={val as number} max={maxTone} />
             </div>
@@ -133,19 +164,26 @@ export default async function Dashboard() {
 
       {/* Ultime scuse */}
       {history.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 flex flex-col gap-4">
-          <h2 className="font-bold text-amber-700">Ultime 10 scuse generate</h2>
-          <div className="flex flex-col divide-y divide-amber-50">
+        <div
+          className="rounded-2xl p-6 flex flex-col gap-5"
+          style={{ backgroundColor: "var(--color-surface)" }}
+        >
+          <h2 className="font-display font-bold text-xl tracking-tight" style={{ color: "var(--color-ink)" }}>
+            Ultime 10 scuse
+          </h2>
+          <div className="flex flex-col divide-y" style={{ borderColor: "var(--color-bg)" }}>
             {history.map((rec) => (
-              <div key={rec.id} className="py-3 flex flex-col gap-1">
-                <div className="flex gap-2 text-xs text-amber-400">
+              <div key={rec.id} className="py-4 flex flex-col gap-1">
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs font-medium" style={{ color: "var(--color-muted)" }}>
                   <span>{CATEGORIES[rec.category] ?? rec.category}</span>
                   <span>·</span>
                   <span>{TONES[rec.tone] ?? rec.tone}</span>
                   <span>·</span>
                   <span>{new Date(rec.createdAt).toLocaleString("it-IT")}</span>
                 </div>
-                <p className="text-sm text-gray-700 line-clamp-2">{rec.excuse}</p>
+                <p className="text-sm leading-relaxed line-clamp-2" style={{ color: "var(--color-ink)" }}>
+                  {rec.excuse}
+                </p>
               </div>
             ))}
           </div>
