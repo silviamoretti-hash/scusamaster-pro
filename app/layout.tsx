@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it" className={`${barlow.variable} ${figtree.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-[var(--color-bg)] font-sans">
+      <body className="min-h-full flex flex-col font-sans">
         <header
           className="px-6 py-5 flex items-center justify-between"
           style={{ backgroundColor: "var(--color-primary)" }}
