@@ -63,13 +63,16 @@ Rispondi SOLO con la scusa, senza introduzioni o commenti.`,
       createdAt: Date.now(),
     };
 
-    await redis.lpush("scusamaster:history", JSON.stringify(record));
-    await redis.ltrim("scusamaster:history", 0, 499);
-    await Promise.all([
+    // Salva su Redis in background — se fallisce non blocca la risposta
+    Promise.all([
+      redis.lpush("scusamaster:history", JSON.stringify(record))
+        .then(() => redis.ltrim("scusamaster:history", 0, 499)),
       redis.incr("scusamaster:total"),
       redis.incr(`scusamaster:category:${category}`),
       redis.incr(`scusamaster:tone:${tone}`),
-    ]);
+    ]).catch((redisErr) => {
+      console.error("redis save error:", redisErr instanceof Error ? redisErr.message : redisErr);
+    });
 
     return Response.json({ excuse, id: record.id });
   } catch (err) {
