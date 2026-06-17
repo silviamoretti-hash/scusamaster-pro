@@ -16,7 +16,9 @@
       "Bash(unzip -q /tmp/gh.zip -d /tmp/gh_extracted)",
       "Read(//tmp/**)",
       "Bash(sudo mv /tmp/gh_extracted/gh_2.70.0_macOS_arm64/bin/gh /usr/local/bin/gh)",
-      "Bash(git commit -m 'Expand Claude Code allowed commands for install and deploy steps *)"
+      "Bash(git commit -m 'Expand Claude Code allowed commands for install and deploy steps *)",
+      "Bash(git commit -m 'Fix API route crash and silent failures in excuse generator *)",
+      "Bash(git commit -m 'Update Claude Code local permissions *)"
     ]
   }
 }
