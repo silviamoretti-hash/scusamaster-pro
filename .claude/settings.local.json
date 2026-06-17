@@ -21,7 +21,24 @@
       "Bash(git commit -m 'Update Claude Code local permissions *)",
       "Bash(git commit -m 'Force Node.js runtime and expose error message for debugging *)",
       "Bash(git push *)",
-      "Bash(git commit -m 'Decouple Redis save from excuse response — Redis errors no longer block the user *)"
+      "Bash(git commit -m 'Decouple Redis save from excuse response — Redis errors no longer block the user *)",
+      "Bash(git commit -m 'Install impeccable skill and update Claude Code permissions *)"
     ]
-  }
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/skills/impeccable/scripts/hook.mjs\"",
+            "timeout": 5,
+            "statusMessage": "Checking UI changes"
+          }
+        ]
+      }
+    ]
+  },
+  "description": "Impeccable design detector: runs after Edit/Write/MultiEdit on UI files and surfaces findings as system reminders."
 }
