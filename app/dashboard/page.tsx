@@ -101,7 +101,7 @@ export default async function Dashboard() {
       {hasError && (
         <div
           className="rounded-2xl border-2 p-4 text-sm font-medium"
-          style={{ borderColor: "var(--color-accent)", color: "#fff", backgroundColor: "oklch(0.13 0.04 28)" }}
+          style={{ borderColor: "var(--color-accent)", color: "var(--color-accent-hover)", backgroundColor: "oklch(0.97 0.012 25)" }}
         >
           ⚠️ Impossibile connettersi al database. Controlla le variabili d&apos;ambiente su Vercel.
         </div>
@@ -118,7 +118,7 @@ export default async function Dashboard() {
         >
           {total}
         </p>
-        <p className="text-base font-semibold" style={{ color: "rgba(255,255,255,0.72)" }}>
+        <p className="text-base font-semibold" style={{ color: "oklch(0.90 0.06 110)" }}>
           scuse generate finora
         </p>
       </div>
