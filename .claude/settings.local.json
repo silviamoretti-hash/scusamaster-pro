@@ -6,7 +6,17 @@
       "Bash(git commit -m ' *)",
       "Bash(npm install *)",
       "Bash(git commit -m 'Build ScusaMaster Pro — generator, API routes, Redis, dashboard *)",
-      "Bash(git commit -m 'Add @upstash/redis dependency and update Claude Code permissions *)"
+      "Bash(git commit -m 'Add @upstash/redis dependency and update Claude Code permissions *)",
+      "Bash(brew install *)",
+      "Bash(curl -sL https://github.com/cli/cli/releases/download/v2.70.0/gh_2.70.0_macOS_arm64.tar.gz -o /tmp/gh.tar.gz)",
+      "Bash(tar -xf /tmp/gh.tar.gz -C /tmp)",
+      "Bash(sudo mv /tmp/gh_2.70.0_macOS_arm64/bin/gh /usr/local/bin/gh)",
+      "Bash(gh --version)",
+      "Bash(curl -sL \"https://github.com/cli/cli/releases/download/v2.70.0/gh_2.70.0_macOS_arm64.zip\" -o /tmp/gh.zip)",
+      "Bash(unzip -q /tmp/gh.zip -d /tmp/gh_extracted)",
+      "Read(//tmp/**)",
+      "Bash(sudo mv /tmp/gh_extracted/gh_2.70.0_macOS_arm64/bin/gh /usr/local/bin/gh)",
+      "Bash(git commit -m 'Expand Claude Code allowed commands for install and deploy steps *)"
     ]
   }
 }
