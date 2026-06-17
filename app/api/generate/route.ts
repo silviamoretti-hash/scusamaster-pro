@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { redis, GenerationRecord } from "@/lib/redis";
 
+export const runtime = "nodejs";
+
 const CATEGORIES: Record<string, string> = {
   malattia: "malattia o problemi di salute",
   famiglia: "emergenze familiari",
@@ -71,10 +73,8 @@ Rispondi SOLO con la scusa, senza introduzioni o commenti.`,
 
     return Response.json({ excuse, id: record.id });
   } catch (err) {
-    console.error("generate error:", err);
-    return Response.json(
-      { error: "Errore nella generazione della scusa. Riprova." },
-      { status: 500 }
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("generate error:", message);
+    return Response.json({ error: message }, { status: 500 });
   }
 }
