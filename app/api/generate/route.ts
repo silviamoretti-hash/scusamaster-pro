@@ -1,8 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { redis, GenerationRecord } from "@/lib/redis";
-import { randomUUID } from "crypto";
-
-const client = new Anthropic();
 
 const CATEGORIES: Record<string, string> = {
   malattia: "malattia o problemi di salute",
@@ -21,20 +18,23 @@ const TONES: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const category: string = body.category ?? "malattia";
-  const tone: string = body.tone ?? "drammatico";
+  try {
+    const body = await request.json();
+    const category: string = body.category ?? "malattia";
+    const tone: string = body.tone ?? "drammatico";
 
-  const categoryDesc = CATEGORIES[category] ?? category;
-  const toneDesc = TONES[tone] ?? tone;
+    const categoryDesc = CATEGORIES[category] ?? category;
+    const toneDesc = TONES[tone] ?? tone;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 512,
-    messages: [
-      {
-        role: "user",
-        content: `Sei ScusaMaster Pro, un esperto di scuse lavorative italiane.
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content: `Sei ScusaMaster Pro, un esperto di scuse lavorative italiane.
 Genera UNA scusa convincente da dire al capo per non lavorare oggi.
 Categoria: ${categoryDesc}
 Tono: ${toneDesc}
@@ -46,29 +46,35 @@ La scusa deve essere:
 - Pronta per essere inviata via messaggio o email
 
 Rispondi SOLO con la scusa, senza introduzioni o commenti.`,
-      },
-    ],
-  });
+        },
+      ],
+    });
 
-  const excuse =
-    message.content[0].type === "text" ? message.content[0].text : "";
+    const excuse =
+      message.content[0].type === "text" ? message.content[0].text : "";
 
-  const record: GenerationRecord = {
-    id: randomUUID(),
-    excuse,
-    category,
-    tone,
-    createdAt: Date.now(),
-  };
+    const record: GenerationRecord = {
+      id: crypto.randomUUID(),
+      excuse,
+      category,
+      tone,
+      createdAt: Date.now(),
+    };
 
-  // Salva in Redis: lista LIFO + contatori
-  await Promise.all([
-    redis.lpush("scusamaster:history", JSON.stringify(record)),
-    redis.ltrim("scusamaster:history", 0, 499),
-    redis.incr("scusamaster:total"),
-    redis.incr(`scusamaster:category:${category}`),
-    redis.incr(`scusamaster:tone:${tone}`),
-  ]);
+    await redis.lpush("scusamaster:history", JSON.stringify(record));
+    await redis.ltrim("scusamaster:history", 0, 499);
+    await Promise.all([
+      redis.incr("scusamaster:total"),
+      redis.incr(`scusamaster:category:${category}`),
+      redis.incr(`scusamaster:tone:${tone}`),
+    ]);
 
-  return Response.json({ excuse, id: record.id });
+    return Response.json({ excuse, id: record.id });
+  } catch (err) {
+    console.error("generate error:", err);
+    return Response.json(
+      { error: "Errore nella generazione della scusa. Riprova." },
+      { status: 500 }
+    );
+  }
 }

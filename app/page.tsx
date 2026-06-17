@@ -24,11 +24,13 @@ export default function Home() {
   const [excuse, setExcuse] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
 
   async function generate() {
     setLoading(true);
     setExcuse("");
     setCopied(false);
+    setError("");
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -36,7 +38,10 @@ export default function Home() {
         body: JSON.stringify({ category, tone }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Errore sconosciuto");
       setExcuse(data.excuse);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Errore nella generazione. Riprova.");
     } finally {
       setLoading(false);
     }
@@ -110,6 +115,12 @@ export default function Home() {
           {loading ? "Sto inventando..." : "🎲 Genera Scusa!"}
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm">
+          ⚠️ {error}
+        </div>
+      )}
 
       {excuse && (
         <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 flex flex-col gap-4">

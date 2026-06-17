@@ -18,7 +18,26 @@ const TONES: Record<string, string> = {
   pietoso: "🥺 Pietoso",
 };
 
-async function getStats() {
+async function getStats(): Promise<ReturnType<typeof buildEmpty> | Awaited<ReturnType<typeof fetchStats>>> {
+  try {
+    return await fetchStats();
+  } catch (err) {
+    console.error("dashboard stats error:", err);
+    return buildEmpty();
+  }
+}
+
+function buildEmpty() {
+  return {
+    total: 0,
+    categories: Object.fromEntries(Object.keys(CATEGORIES).map((k) => [k, 0])),
+    tones: Object.fromEntries(Object.keys(TONES).map((k) => [k, 0])),
+    history: [] as GenerationRecord[],
+    error: true,
+  };
+}
+
+async function fetchStats() {
   const categoryKeys = Object.keys(CATEGORIES);
   const toneKeys = Object.keys(TONES);
 
@@ -56,7 +75,8 @@ function Bar({ value, max }: { value: number; max: number }) {
 }
 
 export default async function Dashboard() {
-  const { total, categories, tones, history } = await getStats();
+  const { total, categories, tones, history, ...rest } = await getStats();
+  const hasError = "error" in rest && rest.error;
   const maxCat = Math.max(...Object.values(categories));
   const maxTone = Math.max(...Object.values(tones));
 
@@ -68,6 +88,12 @@ export default async function Dashboard() {
           ← Genera scuse
         </Link>
       </div>
+
+      {hasError && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm">
+          ⚠️ Impossibile connettersi al database. Controlla le variabili d&apos;ambiente su Vercel.
+        </div>
+      )}
 
       {/* Totale */}
       <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 text-center">
