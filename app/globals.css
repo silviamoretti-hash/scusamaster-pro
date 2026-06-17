@@ -4,14 +4,14 @@
   --font-sans:    var(--font-figtree);
   --font-display: var(--font-barlow);
 
-  --color-bg:            oklch(1.000 0.000   0);
-  --color-surface:       oklch(0.972 0.006 110);
-  --color-primary:       oklch(0.52  0.190 110);
-  --color-primary-hover: oklch(0.44  0.170 110);
-  --color-accent:        oklch(0.53  0.205  25);
-  --color-accent-hover:  oklch(0.45  0.185  25);
-  --color-ink:           oklch(0.12  0.025 110);
-  --color-muted:         oklch(0.43  0.018 110);
+  --color-bg:            oklch(1.000 0.000  0);
+  --color-surface:       oklch(0.973 0.005 28);
+  --color-primary:       oklch(0.60  0.175 28);
+  --color-primary-hover: oklch(0.52  0.165 28);
+  --color-accent:        oklch(0.52  0.165 28);
+  --color-accent-hover:  oklch(0.45  0.150 28);
+  --color-ink:           oklch(0.12  0.020 28);
+  --color-muted:         oklch(0.44  0.018 28);
 }
 
 body {

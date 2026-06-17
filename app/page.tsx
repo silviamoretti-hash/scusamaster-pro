@@ -18,6 +18,7 @@ const TONES = [
   { value: "pietoso",       label: "🥺 Pietoso" },
 ];
 
+
 export default function Home() {
   const [category, setCategory] = useState("malattia");
   const [tone,     setTone]     = useState("drammatico");
@@ -32,7 +33,7 @@ export default function Home() {
     setCopied(false);
     setError("");
     try {
-      const res = await fetch("/api/generate", {
+      const res  = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ category, tone }),
@@ -59,12 +60,12 @@ export default function Home() {
       {/* Title */}
       <div className="flex flex-col gap-3">
         <h1
-          className="font-display font-black leading-[0.92] tracking-[-0.02em] text-balance"
+          className="font-display font-black leading-[0.92] tracking-[-0.02em]"
           style={{
             fontSize: "clamp(3.25rem, 9vw, 5.5rem)",
             color: "var(--color-primary)",
             textWrap: "balance",
-          }}
+          } as React.CSSProperties}
         >
           Genera la tua<br />scusa perfetta.
         </h1>
@@ -95,16 +96,8 @@ export default function Home() {
                   className="rounded-full px-4 py-2 text-sm font-semibold border-2 transition-all duration-150"
                   style={
                     active
-                      ? {
-                          backgroundColor: "var(--color-primary)",
-                          borderColor: "var(--color-primary)",
-                          color: "#fff",
-                        }
-                      : {
-                          backgroundColor: "transparent",
-                          borderColor: "var(--color-surface)",
-                          color: "var(--color-ink)",
-                        }
+                      ? { backgroundColor: "var(--color-primary)", borderColor: "var(--color-primary)", color: "#fff" }
+                      : { backgroundColor: "transparent", borderColor: "var(--color-surface)", color: "var(--color-ink)" }
                   }
                 >
                   {c.label}
@@ -132,16 +125,8 @@ export default function Home() {
                   className="rounded-full px-4 py-2 text-sm font-semibold border-2 transition-all duration-150"
                   style={
                     active
-                      ? {
-                          backgroundColor: "var(--color-primary)",
-                          borderColor: "var(--color-primary)",
-                          color: "#fff",
-                        }
-                      : {
-                          backgroundColor: "transparent",
-                          borderColor: "var(--color-surface)",
-                          color: "var(--color-ink)",
-                        }
+                      ? { backgroundColor: "var(--color-primary)", borderColor: "var(--color-primary)", color: "#fff" }
+                      : { backgroundColor: "transparent", borderColor: "var(--color-surface)", color: "var(--color-ink)" }
                   }
                 >
                   {t.label}
@@ -159,7 +144,7 @@ export default function Home() {
           style={{
             fontSize: "clamp(1.5rem, 4vw, 2rem)",
             letterSpacing: "-0.01em",
-            backgroundColor: loading ? "var(--color-accent)" : "var(--color-accent)",
+            backgroundColor: "var(--color-accent)",
           }}
           onMouseEnter={(e) => {
             if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-accent-hover)";
@@ -186,63 +171,50 @@ export default function Home() {
         </div>
       )}
 
-      {/* Excuse output */}
-      {excuse && (
-        <div
-          className="rounded-2xl border-2 p-7 flex flex-col gap-5"
-          style={{
-            borderColor: "var(--color-primary)",
-            backgroundColor: "var(--color-surface)",
-            animation: "slideUp 0.25s cubic-bezier(0.22,1,0.36,1) both",
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <span
-              className="font-display font-bold text-sm uppercase tracking-widest"
-              style={{ color: "var(--color-primary)" }}
-            >
-              Scusa certificata
-            </span>
-            <span className="text-xs" style={{ color: "var(--color-muted)" }}>
-              ScusaMaster Pro®
-            </span>
-          </div>
-
-          <p
-            className="text-base leading-relaxed whitespace-pre-wrap"
-            style={{ color: "var(--color-ink)", textWrap: "pretty" } as React.CSSProperties}
+      {/* Excuse result */}
+      <div aria-live="polite" aria-atomic="true">
+        {excuse && (
+          <div
+            className="rounded-3xl p-8 flex flex-col gap-6"
+            style={{
+              backgroundColor: "var(--color-primary)",
+              animation: "slideUp 0.30s cubic-bezier(0.22,1,0.36,1) both",
+            }}
           >
-            {excuse}
-          </p>
+            <p
+              className="text-base leading-[1.75] whitespace-pre-wrap"
+              style={{ color: "#fff", textWrap: "pretty", maxWidth: "60ch" } as React.CSSProperties}
+            >
+              {excuse}
+            </p>
 
-          <div className="flex gap-3 pt-1">
-            <button
-              onClick={copy}
-              className="flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-all duration-150"
-              style={{
-                borderColor: "var(--color-primary)",
-                color: "var(--color-primary)",
-              }}
-            >
-              {copied ? "✅ Copiata!" : "📋 Copia"}
-            </button>
-            <button
-              onClick={generate}
-              className="flex-1 rounded-xl border-2 py-2.5 text-sm font-semibold transition-all duration-150"
-              style={{
-                borderColor: "var(--color-surface)",
-                color: "var(--color-muted)",
-              }}
-            >
-              🔄 Rigenera
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={copy}
+                className="flex-1 rounded-xl py-3 text-sm font-bold transition-all duration-150"
+                style={
+                  copied
+                    ? { backgroundColor: "rgba(255,255,255,0.25)", color: "#fff" }
+                    : { backgroundColor: "#fff", color: "var(--color-primary)" }
+                }
+              >
+                {copied ? "✅ Copiata!" : "📋 Copia"}
+              </button>
+              <button
+                onClick={generate}
+                className="flex-1 rounded-xl py-3 text-sm font-semibold border-2 transition-all duration-150"
+                style={{ borderColor: "rgba(255,255,255,0.35)", color: "#fff", backgroundColor: "transparent" }}
+              >
+                🔄 Rigenera
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <style>{`
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(12px); }
+          from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
