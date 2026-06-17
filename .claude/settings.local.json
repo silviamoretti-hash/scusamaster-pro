@@ -20,7 +20,8 @@
       "Bash(git commit -m 'Fix API route crash and silent failures in excuse generator *)",
       "Bash(git commit -m 'Update Claude Code local permissions *)",
       "Bash(git commit -m 'Force Node.js runtime and expose error message for debugging *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git commit -m 'Decouple Redis save from excuse response — Redis errors no longer block the user *)"
     ]
   }
 }
