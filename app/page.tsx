@@ -1,65 +1,140 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+const CATEGORIES = [
+  { value: "malattia", label: "🤒 Malattia" },
+  { value: "famiglia", label: "👨‍👩‍👧 Famiglia" },
+  { value: "tecnico", label: "💻 Problemi tecnici" },
+  { value: "traffico", label: "🚗 Traffico" },
+  { value: "psicologico", label: "🧠 Stress mentale" },
+  { value: "meteorologico", label: "⛈️ Meteo" },
+];
+
+const TONES = [
+  { value: "drammatico", label: "🎭 Drammatico" },
+  { value: "professionale", label: "👔 Professionale" },
+  { value: "creativo", label: "🌀 Creativo/Assurdo" },
+  { value: "pietoso", label: "🥺 Pietoso" },
+];
 
 export default function Home() {
+  const [category, setCategory] = useState("malattia");
+  const [tone, setTone] = useState("drammatico");
+  const [excuse, setExcuse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function generate() {
+    setLoading(true);
+    setExcuse("");
+    setCopied(false);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category, tone }),
+      });
+      const data = await res.json();
+      setExcuse(data.excuse);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copy() {
+    await navigator.clipboard.writeText(excuse);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="max-w-2xl mx-auto px-4 py-12 flex flex-col gap-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-extrabold text-amber-800 mb-2">
+          Generatore di Scuse Pro 🎪
+        </h1>
+        <p className="text-amber-600 text-lg">
+          L&apos;AI che lavora perché tu non debba farlo.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 flex flex-col gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-amber-700 mb-2">
+            Categoria scusa
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => setCategory(c.value)}
+                className={`rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
+                  category === c.value
+                    ? "bg-amber-500 border-amber-500 text-white shadow"
+                    : "border-amber-200 text-amber-700 hover:bg-amber-50"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-amber-700 mb-2">
+            Tono della scusa
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {TONES.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => setTone(t.value)}
+                className={`rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
+                  tone === t.value
+                    ? "bg-amber-500 border-amber-500 text-white shadow"
+                    : "border-amber-200 text-amber-700 hover:bg-amber-50"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="w-full rounded-2xl bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white font-bold py-3 text-lg transition-all shadow-md"
+        >
+          {loading ? "Sto inventando..." : "🎲 Genera Scusa!"}
+        </button>
+      </div>
+
+      {excuse && (
+        <div className="bg-white rounded-2xl shadow-md border border-amber-100 p-6 flex flex-col gap-4">
+          <h2 className="text-sm font-semibold text-amber-500 uppercase tracking-wide">
+            La tua scusa pronta all&apos;uso
+          </h2>
+          <p className="text-gray-800 text-base leading-relaxed whitespace-pre-wrap">
+            {excuse}
           </p>
+          <div className="flex gap-3">
+            <button
+              onClick={copy}
+              className="flex-1 rounded-xl border border-amber-300 text-amber-700 hover:bg-amber-50 font-medium py-2 text-sm transition-all"
+            >
+              {copied ? "✅ Copiata!" : "📋 Copia"}
+            </button>
+            <button
+              onClick={generate}
+              className="flex-1 rounded-xl border border-amber-300 text-amber-700 hover:bg-amber-50 font-medium py-2 text-sm transition-all"
+            >
+              🔄 Rigenera
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
