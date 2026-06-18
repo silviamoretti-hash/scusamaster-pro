@@ -70,8 +70,7 @@ export default function Home() {
           Genera la tua<br />scusa perfetta.
         </h1>
         <p className="text-lg leading-relaxed max-w-[52ch]" style={{ color: "var(--color-muted)" }}>
-          L&apos;AI che lavora perché tu non debba farlo.
-          Seleziona categoria e tono, poi premi il tasto.
+          Perché mentire al capo è un&apos;arte. Lascia che ci pensi l&apos;AI.
         </p>
       </div>
 
